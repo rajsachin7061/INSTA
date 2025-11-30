@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>InstaLite — Demo</title>
+  <style>
+    /* Simple Instagram-like layout (single file) */
+    :root{--bg:#fafafa;--card:#ffffff;--muted:#8e8e8e;--accent:#0095f6;--border:#dbdbdb}
+    *{box-sizing:border-box}
+    body{font-family: -apple-system,BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0;background:var(--bg);color:#111}
+
+    /* Top navbar */
+    .topbar{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:6px 16px;position:sticky;top:0;z-index:40}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700}
+    .logo img{height:30px}
+    .search{flex:1;max-width:420px;margin:0 20px}
+    .search input{width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:#fafafa}
+    .icons{display:flex;gap:12px;align-items:center}
+    .icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+    /* Page layout */
+    .page{max-width:1000px;margin:22px auto;padding:0 12px;display:grid;grid-template-columns: 1fr 320px;gap:28px}
+
+    /* Left column feed */
+    .feed{display:flex;flex-direction:column;gap:16px}
+    .stories{background:#fff;border:1px solid var(--border);padding:12px;border-radius:6px;display:flex;gap:12px;overflow:auto}
+    .story{width:72px;flex:0 0 72px;text-align:center}
+    .story .ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid linear-gradient(45deg,#f58529,#dd2a7b,#8134af);overflow:hidden}
+    .story img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .story small{display:block;margin-top:6px;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* Post card */
+    .post{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+    .post .head{display:flex;align-items:center;padding:12px}
+    .post .head .avatar{width:40px;height:40px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;margin-right:10px}
+    .post .head strong{font-size:14px}
+    .post img.media{width:100%;height:520px;object-fit:cover;background:#eee}
+    .post .actions{display:flex;align-items:center;gap:10px;padding:10px}
+    .post .actions .left{display:flex;gap:8px}
+    .post .likes{font-weight:600;padding:0 12px 10px}
+    .post .caption{padding:0 12px 12px;color:#222}
+    .post .time{padding:0 12px 12px;font-size:12px;color:var(--muted)}
+
+    /* Right column (profile + suggestions) */
+    .sidebar{position:sticky;top:80px}
+    .profileCard{background:#fff;border:1px solid var(--border);padding:12px;border-radius:6px;display:flex;align-items:center;gap:12px}
+    .profileCard .avatar{width:56px;height:56px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .profileCard .meta small{color:var(--muted)}
+    .suggest{background:#fff;border:1px solid var(--border);padding:12px;border-radius:6px}
+    .suggest h4{margin:0 0 8px}
+    .suggest .row{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+    .suggest .row img{width:44px;height:44px;border-radius:50%;object-fit:cover;margin-right:10px}
+
+    /* Composer (floating) */
+    .composer{background:#fff;border:1px solid var(--border);padding:12px;border-radius:6px;display:flex;gap:12px;align-items:flex-start}
+    .composer textarea{flex:1;min-height:46px;border-radius:6px;border:1px solid var(--border);padding:8px}
+    .composer .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:6px;border:0;cursor:pointer}
+
+    footer{max-width:1000px;margin:18px auto;text-align:center;color:var(--muted);font-size:12px}
+
+    @media (max-width:980px){.page{grid-template-columns:1fr}.sidebar{position:relative;top:auto}}
+    @media (max-width:560px){.post img.media{height:320px}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='30' viewBox='0 0 90 30'><text x='0' y='20' font-family='Arial' font-size='18' fill='%23000'>InstaLite</text></svg>" alt="logo">
+    </div>
+
+    <div class="search">
+      <input placeholder="Search" id="searchInput">
+    </div>
+
+    <div class="icons">
+      <div class="icon">🏠</div>
+      <div class="icon">✈️</div>
+      <div class="icon">➕</div>
+      <div class="icon">❤</div>
+      <div class="icon">👤</div>
+    </div>
+  </div>
+
+  <main class="page">
+    <section class="feed">
+
+      <!-- Stories -->
+      <div class="stories" id="storiesRow"></div>
+
+      <!-- Composer -->
+      <div class="composer">
+        <div class="avatar" id="composerAvatar">Y</div>
+        <textarea id="composerTxt" placeholder="Write a caption..."></textarea>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input type="file" id="mediaFile" accept="image/*" />
+          <button class="btn" id="publishBtn">Share</button>
+        </div>
+      </div>
+
+      <!-- Feed posts -->
+      <div id="feedList"></div>
+
+    </section>
+
+    <aside class="sidebar">
+      <div class="profileCard">
+        <div class="avatar">Y</div>
+        <div class="meta">
+          <strong id="sideName">You</strong>
+          <div><small id="sideHandle">@you_demo</small></div>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="suggest">
+        <h4>Suggested for you</h4>
+        <div id="suggestList"></div>
+      </div>
+
+    </aside>
+  </main>
+
+  <footer>Demo Instagram-like UI • Local only</footer>
+
+  <script>
+    // Simple Instagram-like UI using localStorage for demo
+    const storiesRow = document.getElementById('storiesRow');
+    const feedList = document.getElementById('feedList');
+    const suggestList = document.getElementById('suggestList');
+    const publishBtn = document.getElementById('publishBtn');
+    const mediaFile = document.getElementById('mediaFile');
+    const composerTxt = document.getElementById('composerTxt');
+
+    let posts = [];
+    let stories = [];
+    let suggestions = [];
+
+    function uid(){return Math.random().toString(36).slice(2,9)}
+
+    function seed(){
+      if(localStorage.getItem('instalite_posts')) return load();
+      stories = [
+        {id:uid(),name:'Anita',img:'https://picsum.photos/seed/a/200'},
+        {id:uid(),name:'Rohit',img:'https://picsum.photos/seed/b/200'},
+        {id:uid(),name:'Sneha',img:'https://picsum.photos/seed/c/200'},
+        {id:uid(),name:'Vikram',img:'https://picsum.photos/seed/d/200'},
+        {id:uid(),name:'Priya',img:'https://picsum.photos/seed/e/200'}
+      ];
+      posts = [
+        {id:uid(),author:'Anita',handle:'@anita',img:'https://picsum.photos/900/600?random=1',likes:21,caption:'Sunset vibes',time:Date.now()-1000*60*60},
+        {id:uid(),author:'Rohit',handle:'@rohit',img:'https://picsum.photos/900/600?random=2',likes:5,caption:'Street food!',time:Date.now()-1000*60*30}
+      ];
+      suggestions = [
+        {id:uid(),name:'Dilip',img:'https://picsum.photos/seed/s1/80'},
+        {id:uid(),name:'Meera',img:'https://picsum.photos/seed/s2/80'},
+        {id:uid(),name:'Karan',img:'https://picsum.photos/seed/s3/80'}
+      ];
+      save();
+    }
+
+    function save(){localStorage.setItem('instalite_posts',JSON.stringify(posts)); localStorage.setItem('instalite_stories',JSON.stringify(stories)); localStorage.setItem('instalite_suggest',JSON.stringify(suggestions))}
+    function load(){posts = JSON.parse(localStorage.getItem('instalite_posts')||'[]'); stories = JSON.parse(localStorage.getItem('instalite_stories')||'[]'); suggestions = JSON.parse(localStorage.getItem('instalite_suggest')||'[]')}
+
+    function renderStories(){storiesRow.innerHTML=''; stories.forEach(s=>{
+      const div = document.createElement('div'); div.className='story'; div.innerHTML=`<div class="ring"><img src="${s.img}" alt="${s.name}"></div><small>${s.name}</small>`; storiesRow.appendChild(div);
+    })}
+
+    function renderSuggestions(){suggestList.innerHTML=''; suggestions.forEach(s=>{
+      const row = document.createElement('div'); row.className='row'; row.innerHTML = `<div style="display:flex;align-items:center"><img src="${s.img}" alt="${s.name}"><div><strong>${s.name}</strong><div style="font-size:12px;color:var(--muted)">@${s.name.toLowerCase()}</div></div></div><button class='btn follow' data-id='${s.id}'>Follow</button>`; suggestList.appendChild(row);
+      row.querySelector('.follow').addEventListener('click', ()=>{alert('Followed '+s.name)});
+    })}
+
+    function renderFeed(){feedList.innerHTML=''; posts.slice().reverse().forEach(p=>{
+      const card = document.createElement('div'); card.className='post';
+      card.innerHTML = `<div class="head"><div class="avatar">${p.author[0]}</div><div><strong>${p.author}</strong><div style="font-size:12px;color:var(--muted)">${p.handle}</div></div></div><img class='media' src='${p.img}' alt='post'><div class='actions'><div class='left'><button class='like' data-id='${p.id}'>❤</button><button class='comment' data-id='${p.id}'>💬</button></div><div></div></div><div class='likes'>${p.likes} likes</div><div class='caption'><strong>${p.author}</strong> ${p.caption}</div><div class='time'>${timeAgo(p.time)}</div>`;
+      feedList.appendChild(card);
+
+      card.querySelector('.like').addEventListener('click', ()=>{p.likes+=1; save(); renderFeed();});
+    })}
+
+    function timeAgo(ts){const diff=(Date.now()-ts)/1000; if(diff<60) return Math.floor(diff)+"s"; if(diff<3600) return Math.floor(diff/60)+"m"; if(diff<86400) return Math.floor(diff/3600)+"h"; return Math.floor(diff/86400)+"d"}
+
+    // Handle media upload as data URL
+    let pendingImg = null;
+    mediaFile.addEventListener('change', (e)=>{
+      const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload=()=>{pendingImg=r.result}; r.readAsDataURL(f);
+    });
+
+    publishBtn.addEventListener('click', ()=>{
+      const text = composerTxt.value.trim();
+      if(!text && !pendingImg) return alert('Add a photo or caption');
+      const newPost = {id:uid(),author:'You',handle:'@you_demo',img: pendingImg || ('https://picsum.photos/900/600?random='+Math.floor(Math.random()*1000)),likes:0,caption:text,time:Date.now()};
+      posts.push(newPost); save(); composerTxt.value=''; mediaFile.value=''; pendingImg=null; renderFeed();
+    });
+
+    // initial
+    seed(); load(); renderStories(); renderSuggestions(); renderFeed();
+  </script>
+</body>
+</html>
