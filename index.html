@@ -86,6 +86,7 @@
       <div class="icon">➕</div>
       <div class="icon">❤</div>
       <div class="icon">👤</div>
+
     </div>
   </div>
 
@@ -98,10 +99,10 @@
       <!-- Composer -->
       <div class="composer">
         <div class="avatar" id="composerAvatar">Y</div>
-        <textarea id="composerTxt" placeholder="Write a caption..."></textarea>
+        <textarea id="composerTxt" placeholder="Write description..."></textarea>
         <div style="display:flex;flex-direction:column;gap:8px">
           <input type="file" id="mediaFile" accept="image/*" />
-          <button class="btn" id="publishBtn">Share</button>
+          <button class="btn" id="publishBtn">Published</button>
         </div>
       </div>
 
@@ -153,7 +154,9 @@
         {id:uid(),name:'Rohit',img:'https://picsum.photos/seed/b/200'},
         {id:uid(),name:'Sneha',img:'https://picsum.photos/seed/c/200'},
         {id:uid(),name:'Vikram',img:'https://picsum.photos/seed/d/200'},
-        {id:uid(),name:'Priya',img:'https://picsum.photos/seed/e/200'}
+        {id:uid(),name:'Priya',img:'https://picsum.photos/seed/e/200'},
+        
+        
       ];
       posts = [
         {id:uid(),author:'Anita',handle:'@anita',img:'https://picsum.photos/900/600?random=1',likes:21,caption:'Sunset vibes',time:Date.now()-1000*60*60},
